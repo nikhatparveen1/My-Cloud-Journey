@@ -46,7 +46,7 @@ resource "aws_security_group" "web_sg" {
 resource "aws_instance" "web" {
   ami           = "ami-0f3a9efc7dc1165a3"
   instance_type = "t3.micro"
-  key_name = "day-12-key"
+  key_name      = "day-12-key"
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
