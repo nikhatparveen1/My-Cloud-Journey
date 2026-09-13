@@ -38,3 +38,10 @@ resource "aws_subnet" "private_sub" {
     Name = "day-19-private-subnet"
   }
 }
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "day-20-igw"
+  }
+}
