@@ -62,3 +62,72 @@ resource "aws_route_table_association" "public_assoc" {
   subnet_id      = aws_subnet.public_sub.id
   route_table_id = aws_route_table.public_rt.id
 }
+resource "aws_security_group" "bastion_sg" {
+  name        = "day-23-bastion-sg"
+  description = "Allow SSH from anywhere to bastion"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  ingress {
+    description = "SSH from public internet"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "day-23-bastion-sg"
+  }
+}
+resource "aws_security_group" "private_ec2_sg" {
+  name        = "day-24-private-ec2-sg"
+  description = "SSH access from bastion only"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  ingress {
+    description     = "SSH from bastion"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "day-24-private-ec2-sg"
+  }
+}
+resource "aws_instance" "private_ec2" {
+  ami                    = "ami-0f84e72ee2b9c3a09"
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.private_sub.id
+  vpc_security_group_ids = [aws_security_group.private_ec2_sg.id]
+  key_name               = "day-12-key"
+
+  associate_public_ip_address = false
+
+  user_data = <<-EOF
+              #!/bin/bash
+              dnf update -y
+              dnf install -y nginx
+              systemctl enable --now nginx
+              echo "Day 24 Private EC2" > /usr/share/nginx/html/index.html
+              EOF
+
+  tags = {
+    Name = "day-24-private-ec2"
+  }
+}
