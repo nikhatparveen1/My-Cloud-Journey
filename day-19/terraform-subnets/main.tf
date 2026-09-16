@@ -131,3 +131,16 @@ resource "aws_instance" "private_ec2" {
     Name = "day-24-private-ec2"
   }
 }
+resource "aws_instance" "bastion" {
+  ami                    = "ami-0f84e72ee2b9c3a09"
+  instance_type          = "t3.micro"
+  subnet_id              = aws_subnet.public_sub.id
+  vpc_security_group_ids = [aws_security_group.bastion_sg.id]
+  key_name               = "day-12-key"
+
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "day-23-bastion"
+  }
+}
