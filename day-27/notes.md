@@ -104,3 +104,7 @@ terraform apply
 
 Day 27:
 No infrastructure changes were intentionally created.
+
+## Verification Proof
+
+![Day 27 GitHub Proof](images/day27.png)
