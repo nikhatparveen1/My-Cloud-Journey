@@ -144,3 +144,86 @@ resource "aws_instance" "bastion" {
     Name = "day-23-bastion"
   }
 }
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "day-29-private-rt"
+  }
+}
+resource "aws_route_table_association" "private_assoc" {
+  subnet_id      = aws_subnet.private_sub.id
+  route_table_id = aws_route_table.private_rt.id
+}
+resource "aws_security_group" "nat_sg" {
+  name        = "day-29-nat-sg"
+  description = "Security group for NAT instance"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  ingress {
+    description = "Allow private subnet traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.2.0/24"]
+  }
+
+  egress {
+    description = "Allow outbound internet traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "day-29-nat-sg"
+  }
+}
+data "aws_ssm_parameter" "al2023_ami" {
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+}
+resource "aws_instance" "nat_instance" {
+  ami           = data.aws_ssm_parameter.al2023_ami.value
+  instance_type = "t3.micro"
+
+  subnet_id = aws_subnet.public_sub.id
+
+  vpc_security_group_ids = [
+    aws_security_group.nat_sg.id
+  ]
+
+  associate_public_ip_address = true
+
+  source_dest_check = false
+
+  user_data = <<-EOF
+              #!/bin/bash
+              set -e
+
+              sysctl -w net.ipv4.ip_forward=1
+
+              cat <<SYSCTL > /etc/sysctl.d/99-nat.conf
+              net.ipv4.ip_forward = 1
+              SYSCTL
+
+              sysctl --system
+
+              dnf install -y iptables-services
+
+              systemctl enable --now iptables
+
+              iptables -t nat -A POSTROUTING -o eth0 -s 10.0.2.0/24 -j MASQUERADE
+
+              service iptables save
+              EOF
+
+  tags = {
+    Name = "day-29-nat-instance"
+  }
+}
+resource "aws_route" "private_default" {
+  route_table_id         = aws_route_table.private_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = aws_instance.nat_instance.primary_network_interface_id
+}
