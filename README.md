@@ -22,3 +22,36 @@
 - Docker: In progress
 
 
+# Phase 2 — Custom AWS VPC with Terraform
+
+## Overview
+
+In Phase 2, I built a custom AWS VPC using Terraform.
+
+The VPC uses a public subnet and a private subnet to separate
+internet-facing infrastructure from private resources.
+
+## Architecture
+
+```text
+                         Internet
+                            |
+                            v
+                    Internet Gateway
+                            |
+              +-------------+-------------+
+              |                           |
+              v                           v
+        Public Subnet               Private Subnet
+        10.0.1.0/24                 10.0.2.0/24
+              |                           |
+              v                           v
+        Bastion EC2                  Private EC2
+              |                           |
+              |                           v
+              |                     NAT Instance
+              |                           |
+              +---------------------------+
+                                          |
+                                          v
+                                       Internet
