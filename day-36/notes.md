@@ -1,106 +1,80 @@
-nano notes.md# Day 36 — Docker Basics
+# Day 37 — Python Hello World Application
 
-## Goal
+## Application
 
-Understand Docker images, containers, Dockerfiles,
-and the basic Docker lifecycle.
+Built a small Flask web application.
 
-## Image
+Files:
 
-A Docker image is a reusable package/template used
-to create containers.
+- app.py
+- requirements.txt
+- Dockerfile
+- .dockerignore
 
-Example:
+## Application Flow
 
-hello-world
-day-36-demo
-
-## Container
-
-A container is a running or stopped instance created
-from a Docker image.
-
-## Dockerfile
-
-A Dockerfile contains instructions used to build
-a Docker image.
-
-Example:
-
-FROM alpine:latest
-
-CMD ["echo", "Hello from my Day 36 Docker image!"]
-
-## Docker Lifecycle
-
-Dockerfile
+Browser
     ↓
-docker build
+HTTP request
     ↓
-Image
+Flask
     ↓
-docker run
+@app.route("/")
     ↓
-Container
+Python function
     ↓
-Application process
+Response
 
-## Important Commands
+## Port
 
-docker --version
-→ Check Docker CLI version.
+The application listens on:
 
-docker info
-→ Show Docker Engine information.
+5000
 
-docker images
-→ List local images.
+## Important Flask Setting
 
-docker ps
-→ List running containers.
+host="0.0.0.0"
 
-docker ps -a
-→ List all containers.
+This allows the application to listen on all interfaces,
+which is important when running inside a container.
 
-docker build
-→ Build an image.
+## Dockerfile Flow
 
-docker run
-→ Create and start a container.
+FROM
+    ↓
+WORKDIR
+    ↓
+COPY requirements.txt
+    ↓
+RUN pip install
+    ↓
+COPY app.py
+    ↓
+EXPOSE 5000
+    ↓
+CMD python app.py
 
-docker logs
-→ View container output.
+## Important Concepts
 
-docker stop
-→ Stop a running container.
+RUN
+→ executes during image build.
 
-docker rm
-→ Remove a container.
+CMD
+→ default process when container starts.
 
-docker rmi
-→ Remove an image.
+EXPOSE
+→ documents the container port.
 
-## Key Difference
+docker run -p
+→ publishes/maps the container port to the host.
 
-Image = reusable package/template.
+## Day 37 Result
 
-Container = instance created from an image.
+The Python application works locally.
 
-## Important Lesson
+The Dockerfile has been prepared to package the
+Python application into a Docker image.
 
-A container can exit normally when its main process
-finishes. An exited container is not necessarily an error.
-
-## Project 2
-
-Day 36 begins the Docker + CI/CD project.
-
-Later:
-
-Docker
-→ Application
-→ Registry
-→ EC2
-→ GitHub Actions
-→ Automated deployment
+Image build and container execution will be tested
+on Day 38.
 
