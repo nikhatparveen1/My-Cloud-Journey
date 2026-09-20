@@ -5,3 +5,8 @@
 .env
 .env.*
 *.csv
+
+# Python
+.venv/
+__pycache__/
+*.pyc
