@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test-and-security:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -42,7 +42,7 @@ jobs:
             day-36
 
       - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "ghcr.io/${{ github.repository_owner }}/my-cloud-journey:${{ github.sha }}"
           format: "table"
