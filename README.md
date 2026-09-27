@@ -55,3 +55,71 @@ internet-facing infrastructure from private resources.
                                           |
                                           v
                                        Internet
+
+
+## Phase 3 — Docker, Security Scanning & CI/CD Pipeline
+
+### Overview
+In Phase 3, I automated application testing, container building, vulnerability scanning, and live deployment verification onto AWS EC2 using GitHub Actions and GitHub Container Registry (GHCR).
+
+### Extended Architecture & CI/CD Flow
+```text
+[ Developer Workstation (CachyOS) ]
+               │
+               │ (git push)
+               ▼
+     [ GitHub Repository ]
+               │
+               │ (GitHub Actions Trigger)
+               ▼
+┌─────────────────────────────────────────────────────────┐
+│               Automated CI/CD Pipeline                  │
+├─────────────────────────────────────────────────────────┤
+│ 1. Pytest Unit Verification (/ & /health routes)        │
+│ 2. Docker Image Build                                   │
+│ 3. Vulnerability Scanning (Trivy Security)              │
+│ 4. Publish Artifact to GHCR (:full-git-sha)             │
+└─────────────────────────────────────────────────────────┘
+               │
+               │ (Terraform IaC Provisioning)
+               ▼
+┌─────────────────────────────────────────────────────────┐
+│               AWS Cloud Infrastructure                  │
+│            Region: ap-south-2 (Hyderabad)               │
+├─────────────────────────────────────────────────────────┤
+│ • Ephemeral EC2 Instance (t3.micro)                     │
+│ • Custom Security Group (Inbound SSH + Port 5000)       │
+│ • Docker Runtime Container Execution                    │
+└─────────────────────────────────────────────────────────┘
+               │
+               │ (Live Verification: curl / & /health)
+               ▼
+┌─────────────────────────────────────────────────────────┐
+│              Zero-Cost Safety Cleanup                   │
+├─────────────────────────────────────────────────────────┤
+│ • Automated `terraform destroy` (Restores cost to $0)   │
+└─────────────────────────────────────────────────────────┘
+
+Key Milestone Achievements (Days 42–50)
+Automated CI/CD: Built GitHub Actions workflow verifying Python tests, building Docker containers, and scanning image layers with Trivy.
+
+Immutable Artifacts: Published images tagged with 40-character Git SHAs (ghcr.io/nikhatparveen1/my-cloud-journey:<SHA>) to eliminate configuration drift.
+
+Microservice Reliability: Added diagnostic health check endpoints (/health) returning HTTP 200 OK JSON responses.
+
+Zero-Cost Policy: Maintained a strict $0 ongoing compute budget by using temporary, ephemeral EC2 instances torn down via terraform destroy.
+
+💻 Tech Stack Summary
+OS: CachyOS (Arch Linux)
+
+Cloud Platform: AWS (ap-south-2 - Hyderabad)
+
+Infrastructure as Code: Terraform
+
+CI/CD & Registry: GitHub Actions, GHCR
+
+Security & Testing: Trivy, Pytest
+
+Containerization & App: Docker, Python (Flask)
+EOF
+
