@@ -93,3 +93,11 @@ IAM controls the permissions required by the Lambda and the invocation relations
 - CloudWatch Logs
 - Successful S3 upload
 
+
+## Evidence & Verification
+
+### 1. S3 Bucket & Lambda Function Configuration
+![S3 Bucket and Lambda Config](./assets/01-s3-bucket-and-lambda-config.png)
+
+### 2. S3 Notification Trigger & Live Upload Test
+![S3 Notification and File Upload](./assets/02-s3-notification-and-file-upload.png)
