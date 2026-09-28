@@ -1,0 +1,10 @@
+{
+  "LambdaFunctionConfigurations": [
+    {
+      "LambdaFunctionArn": "arn:aws:lambda:ap-south-2:494915081249:function:day54-57-s3-logger",
+      "Events": [
+        "s3:ObjectCreated:*"
+      ]
+    }
+  ]
+}
