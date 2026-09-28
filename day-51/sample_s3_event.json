@@ -1,0 +1,16 @@
+{
+  "Records": [
+    {
+      "eventName": "ObjectCreated:Put",
+      "s3": {
+        "bucket": {
+          "name": "my-demo-bucket"
+        },
+        "object": {
+          "key": "images/cat.jpg"
+        }
+      }
+    }
+  ]
+}
+
