@@ -1,58 +1,70 @@
 import json
 import os
 import boto3
+from decimal import Decimal
 from botocore.exceptions import ClientError
 
-# Explicitly target Rekognition in ap-south-1 (Mumbai)
+# Rekognition client points explicitly to ap-south-1 (Mumbai)
 rekognition = boto3.client("rekognition", region_name="ap-south-1")
 
+# DynamoDB resource targets ap-south-2 (Hyderabad)
+dynamodb = boto3.resource("dynamodb", region_name="ap-south-2")
+table = dynamodb.Table(os.environ["TABLE_NAME"])
+
+
 def lambda_handler(event, context):
+    print("Received event:", json.dumps(event))
+
+    # Retrieve S3 bucket name directly from Lambda environment variable
+    rek_bucket_name = os.environ["REK_BUCKET_NAME"]
+
+    # Extract object key from S3 event or test payload
+    image_key = event.get("image") or event.get("key")
+
+    if not image_key and "Records" in event:
+        image_key = event["Records"][0]["s3"]["object"]["key"]
+
+    if not image_key:
+        return {"statusCode": 400, "body": "Missing image key"}
+
     try:
-        print("S3 event received:")
-        print(json.dumps(event, indent=2))
+        # Call Rekognition in ap-south-1
+        response = rekognition.detect_labels(
+            Image={
+                "S3Object": {
+                    "Bucket": rek_bucket_name,
+                    "Name": image_key
+                }
+            },
+            MaxLabels=10,
+            MinConfidence=80
+        )
 
-        rek_bucket = os.environ.get("REK_BUCKET_NAME")
+        # Format labels into list of dictionaries
+        labels = [
+            {
+                "name": label["Name"],
+                "confidence": Decimal(str(round(label["Confidence"], 2)))
+            }
+            for label in response.get("Labels", [])
+        ]
 
-        for record in event.get("Records", []):
-            event_bucket = record.get("s3", {}).get("bucket", {}).get("name", rek_bucket)
-            key = record.get("s3", {}).get("object", {}).get("key")
-
-            if not key:
-                print("Warning: Event record missing object key. Skipping record.")
-                continue
-
-            target_bucket = event_bucket if "rekognition" in str(event_bucket) else rek_bucket
-            print(f"Calling Rekognition (ap-south-1) for: s3://{target_bucket}/{key}")
-
-            try:
-                response = rekognition.detect_labels(
-                    Image={
-                        "S3Object": {
-                            "Bucket": target_bucket,
-                            "Name": key
-                        }
-                    },
-                    MaxLabels=10,
-                    MinConfidence=80
-                )
-
-                print("--- Detected Labels ---")
-                for label in response.get("Labels", []):
-                    name = label["Name"]
-                    confidence = label["Confidence"]
-                    print(f"  - {name}: {confidence:.2f}%")
-
-            except ClientError as error:
-                error_code = error.response["Error"]["Code"]
-                error_message = error.response["Error"]["Message"]
-                print(f"[ERROR] Rekognition API ClientError ({error_code}): {error_message}")
-                continue
+        # Write item to DynamoDB matching exact required structure
+        table.put_item(
+            Item={
+                "imageKey": image_key,
+                "labels": labels,
+                "timestamp": context.aws_request_id
+            }
+        )
+        print(f"Successfully saved results for {image_key} into DynamoDB.")
 
         return {
             "statusCode": 200,
-            "body": "Image processing completed"
+            "body": json.dumps({"message": "Labels saved successfully", "imageKey": image_key})
         }
 
-    except Exception as error:
-        print(f"[CRITICAL] Unexpected Lambda execution error: {str(error)}")
-        raise error
+    except ClientError as e:
+        print(f"AWS ClientError: {e.response['Error']['Message']}")
+        return {"statusCode": 500, "body": str(e)}
+

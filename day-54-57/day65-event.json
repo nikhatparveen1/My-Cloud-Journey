@@ -1,0 +1,14 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": "my-cloud-journey-rekognition-2026-4919"
+        },
+        "object": {
+          "key": "day65-final.jpg"
+        }
+      }
+    }
+  ]
+}
