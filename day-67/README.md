@@ -43,3 +43,10 @@ CloudWatch Logs
 Tested both a known-good image and an intentionally
 invalid S3 object.
 
+
+---
+
+## 📸 Proof of Execution
+
+![Day 67 Success Payload](images/day67-success-response.png)
+![Day 67 Failure Payload](images/day67-failure-response.png)

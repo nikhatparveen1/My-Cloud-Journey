@@ -36,3 +36,11 @@ DynamoDB
 
 CloudWatch observes the Lambda execution path.
 
+
+---
+
+## 📸 Proof of Execution
+
+![Day 68 CloudWatch Logs](images/day68-cloudwatch-logs.png)
+![Day 68 Lambda Metrics Part 1](images/day68-lambda-metrics-1.png)
+![Day 68 Lambda Metrics Part 2](images/day68-lambda-metrics-2.png)
