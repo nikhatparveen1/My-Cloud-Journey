@@ -45,3 +45,16 @@ the monitoring path.
 - OK state
 - ALARM state
 - Missing data handling
+
+---
+
+## 📸 Proof of Execution
+
+### Screenshot 1: CloudWatch Alarm Configuration
+![Day 69 Alarm Configuration](images/day69-alarm-config.png)
+
+### Screenshot 2: Lambda Errors Metric Statistics
+![Day 69 Error Metrics](images/day69-error-metrics.png)
+
+### Screenshot 3: CloudWatch Execution Logs
+![Day 69 Execution Logs](images/day69-cloudwatch-logs.png)

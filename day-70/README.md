@@ -31,3 +31,10 @@ Logs explain what happened.
 Metrics measure operational behavior.
 
 Alarms detect conditions that require attention.
+
+---
+
+## 📸 Proof of Execution
+
+### Screenshot 4: Final CloudWatch Alarm State Verification
+![Day 70 Alarm State Verification](images/day70-alarm-state.png)
