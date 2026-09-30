@@ -55,6 +55,3 @@ separately.
 
 ### Screenshot 4: Filtered Application Execution Logs
 ![Day 72 Application Logs](images/day72-application-logs.png)
-
----
-*Updated on Day 72: Verification and proof artifacts finalized.*
