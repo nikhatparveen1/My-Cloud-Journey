@@ -1,0 +1,14 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": ""
+        },
+        "object": {
+          "key": "day66-this-object-does-not-exist.jpg"
+        }
+      }
+    }
+  ]
+}
