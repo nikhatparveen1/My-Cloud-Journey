@@ -4,43 +4,36 @@ import boto3
 from decimal import Decimal
 from botocore.exceptions import ClientError
 
-# Rekognition client points explicitly to ap-south-1 (Mumbai)
-rekognition = boto3.client("rekognition", region_name="ap-south-1")
+# Initialize AWS SDK clients
+rekognition = boto3.client('rekognition', region_name='ap-south-1')
+dynamodb = boto3.resource('dynamodb', region_name='ap-south-2')
 
-# DynamoDB resource targets ap-south-2 (Hyderabad)
-dynamodb = boto3.resource("dynamodb", region_name="ap-south-2")
-table = dynamodb.Table(os.environ["TABLE_NAME"])
+TABLE_NAME = os.environ.get('TABLE_NAME', 'day54-57-image-results')
+REK_BUCKET_NAME = os.environ.get('REK_BUCKET_NAME', 'my-cloud-journey-rekognition-2026-4919')
 
+table = dynamodb.Table(TABLE_NAME)
 
 def lambda_handler(event, context):
-    print("Received event:", json.dumps(event))
-
-    # Retrieve S3 bucket name directly from Lambda environment variable
-    rek_bucket_name = os.environ["REK_BUCKET_NAME"]
-
-    # Extract object key from S3 event or test payload
-    image_key = event.get("image") or event.get("key")
-
-    if not image_key and "Records" in event:
-        image_key = event["Records"][0]["s3"]["object"]["key"]
-
-    if not image_key:
-        return {"statusCode": 400, "body": "Missing image key"}
-
     try:
-        # Call Rekognition in ap-south-1
+        # Extract object key from S3 event trigger or direct payload
+        record = event['Records'][0]
+        image_key = record['s3']['object']['key']
+        
+        print(f"Processing image: {image_key}")
+
+        # Call Rekognition to detect labels
+        print(f"Calling Rekognition for bucket: {REK_BUCKET_NAME}, key: {image_key}")
         response = rekognition.detect_labels(
             Image={
-                "S3Object": {
-                    "Bucket": rek_bucket_name,
-                    "Name": image_key
+                'S3Object': {
+                    'Bucket': REK_BUCKET_NAME,
+                    'Name': image_key
                 }
             },
             MaxLabels=10,
             MinConfidence=80
         )
 
-        # Format labels into list of dictionaries
         labels = [
             {
                 "name": label["Name"],
@@ -48,8 +41,11 @@ def lambda_handler(event, context):
             }
             for label in response.get("Labels", [])
         ]
+        
+        print(f"Detected {len(labels)} labels for {image_key}")
 
-        # Write item to DynamoDB matching exact required structure
+        # Write item to DynamoDB
+        print(f"Writing result to DynamoDB: {image_key}")
         table.put_item(
             Item={
                 "imageKey": image_key,
@@ -57,7 +53,7 @@ def lambda_handler(event, context):
                 "timestamp": context.aws_request_id
             }
         )
-        print(f"Successfully saved results for {image_key} into DynamoDB.")
+        print(f"Successfully stored result: {image_key}")
 
         return {
             "statusCode": 200,
@@ -65,6 +61,20 @@ def lambda_handler(event, context):
         }
 
     except ClientError as e:
-        print(f"AWS ClientError: {e.response['Error']['Message']}")
-        return {"statusCode": 500, "body": str(e)}
+        error_code = e.response['Error']['Code']
+        error_msg = e.response['Error']['Message']
+        print(f"ERROR: AWS ClientError ({error_code}) processing image: {error_msg}")
 
+        return {
+            "statusCode": 500,
+            "body": json.dumps({
+                "error": error_code,
+                "message": error_msg
+            })
+        }
+    except Exception as e:
+        print(f"ERROR: Unexpected error processing request: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Internal Error", "details": str(e)})
+        }
