@@ -55,6 +55,9 @@ def lambda_handler(event, context):
         )
         print(f"Successfully stored result: {image_key}")
 
+        # APPLICATION LOG MARKER: SUCCESS
+        print(f"APPLICATION_SUCCESS image={image_key}")
+
         return {
             "statusCode": 200,
             "body": json.dumps({"message": "Labels saved successfully", "imageKey": image_key})
@@ -65,6 +68,9 @@ def lambda_handler(event, context):
         error_msg = e.response['Error']['Message']
         print(f"ERROR: AWS ClientError ({error_code}) processing image: {error_msg}")
 
+        # APPLICATION LOG MARKER: FAILURE
+        print(f"APPLICATION_ERROR image={image_key} error={error_msg}")
+
         return {
             "statusCode": 500,
             "body": json.dumps({
@@ -74,6 +80,10 @@ def lambda_handler(event, context):
         }
     except Exception as e:
         print(f"ERROR: Unexpected error processing request: {str(e)}")
+        
+        # APPLICATION LOG MARKER: UNEXPECTED FAILURE
+        print(f"APPLICATION_ERROR image=unknown error={str(e)}")
+
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Internal Error", "details": str(e)})
