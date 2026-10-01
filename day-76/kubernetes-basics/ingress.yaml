@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: day77-nginx-ingress
+spec:
+  rules:
+    - host: nginx.example.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: day76-nginx-service
+                port:
+                  number: 80
