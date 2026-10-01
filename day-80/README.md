@@ -31,8 +31,16 @@ The following were verified:
 
 ## Screenshots & Portfolio Proof
 
+<<<<<<< HEAD
 ### 1. EKS Cluster Status (ACTIVE)
 ![EKS Cluster Active](screenshots/eks-cluster-active.png)
+=======
+### 1. EKS Node Group Configuration (`Desired = 1`)
+![Node Group Status](screenshots/eks-cluster-active.png)
+
+### 2. Terraform Apply Output
+![Terraform Apply Output](screenshots/nodegroup-status.png)
+>>>>>>> 2c42f5d (Align Day 80 README section headers with rendered screenshot filenames)
 
 ### 2. EKS Node Group Configuration (`Desired = 1`)
 ![Node Group Status](screenshots/nodegroup-status.png)
@@ -40,8 +48,14 @@ The following were verified:
 ### 3. Worker Node Status (`kubectl get nodes`)
 ![Kubectl Get Nodes](screenshots/kubectl-get-nodes.png)
 
+<<<<<<< HEAD
 ### 4. Terraform Apply Output
 ![Terraform Apply Output](screenshots/terraform-apply.png)
+=======
+### 4. EKS Cluster Status (ACTIVE)
+![EKS Cluster Active](screenshots/terraform-apply.png)
+
+>>>>>>> 2c42f5d (Align Day 80 README section headers with rendered screenshot filenames)
 ## AWS Safety
 
 The cluster was intentionally deployed with a single
