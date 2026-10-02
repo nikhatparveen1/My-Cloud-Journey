@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Hello from My Cloud Journey!(Day 49 Live Demo)"
+    return "Hello from My Cloud Journey! (Day 88 CI/CD Automated EKS Deployment)"
 
 @app.route("/health")
 def health():
@@ -12,5 +12,3 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
