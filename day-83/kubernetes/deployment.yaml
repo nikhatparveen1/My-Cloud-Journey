@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-cloud-journey-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-cloud-journey-app
+  template:
+    metadata:
+      labels:
+        app: my-cloud-journey-app
+    spec:
+      containers:
+      - name: app
+        image: 494915081249.dkr.ecr.ap-south-2.amazonaws.com/my-cloud-journey-app:day82
+        ports:
+        - containerPort: 5000
