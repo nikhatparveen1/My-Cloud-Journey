@@ -9,4 +9,4 @@ subnet_ids = [
 ]
 
 node_instance_type = "t3.small"
-kubernetes_version = "1.30"
+kubernetes_version = "1.31"
